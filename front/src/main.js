@@ -12,9 +12,5 @@ loadFonts()
 createApp(App)
   // .use(vuetify)
   .use(BalmUI)
-  .use($theme, {
-    primary: '#ff5722',
-    secondary: '#ff5722',
-  })
   // .use(BalmUIPlus)
   .mount('#app')

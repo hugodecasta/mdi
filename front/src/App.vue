@@ -37,7 +37,7 @@
 <script setup>
 import { onMounted, ref, getCurrentInstance, reactive, computed, watch } from 'vue'
 import api from './plugins/api'
-import icon from './components/icon.vue'
+import Icon from './components/icon.vue'
 
 const search_text = ref('')
 
@@ -57,7 +57,6 @@ function set_icons(icons, text = '') {
 }
 
 async function search(q_txt) {
-    console.log(q_txt)
     searching.value = true
     data_text.value = 'searching...'
     const found = await api.api.search({ text: q_txt })

@@ -47,6 +47,9 @@
             >@{{icon.user.twitter}}</a>
 
         </ui-dialog-content>
+        <ui-dialog-actions>
+            <ui-button @click="open = false">ok</ui-button>
+        </ui-dialog-actions>
     </ui-dialog>
 
 </template>

@@ -33,17 +33,45 @@ async function get_icon_data(icon_id) {
     return await (await fetch('https://materialdesignicons.com/api/icon/' + icon_id)).json()
 }
 
-async function launch_icon_retrieval(icon, count) {
-    const icon_id = icon.id
-    const exists = icon_id in icons_data
-    let ret_icon = null
-    try {
-        ret_icon = exists ? icons_data[icon_id] : { ...icon, ...await get_icon_data(icon_id) }
-        if (!exists) fs.writeFileSync(per_icon_dir + '/' + icon_id + '.json', JSON.stringify(obj.res))
-    } catch (e) {
-        console.error('ERROR on icon ret', e)
+let count = 0
+let i = 0
+let end_cb = null
+async function launch_icon_retrieval(icon) {
+    return new Promise(ok => {
+        const icon_id = icon.id
+        const exists = icon_id in icons_data
+        setTimeout(async () => {
+            let ret_icon = null
+            try {
+                ret_icon = exists ? icons_data[icon_id] : { ...icon, ...await get_icon_data(icon_id) }
+                // console.log(i++ / count)
+                if (!exists) fs.writeFileSync(per_icon_dir + '/' + icon_id + '.json', JSON.stringify(ret_icon))
+                i++
+                if (i == count && end_cb) end_cb()
+            } catch (e) {
+                console.error('ERROR on icon ret', e)
+                console.log('redoing')
+                ret_icon(icon)
+            }
+            ok(ret_icon)
+        }, exists ? 0 : (Math.random() * 60000))
+    })
+}
+
+async function ret_icon(icon) {
+    icons_data_promise[icon.id] = launch_icon_retrieval(icon)
+    icons_data[icon.id] = await icons_data_promise[icon.id]
+}
+
+export function listen_to_load(cb) {
+    end_cb = cb
+    if (i > 0 && i == count && end_cb) {
+        end_cb()
     }
-    return ret_icon
+}
+
+export function loaded() {
+    return { count, loaded: i }
 }
 
 async function generate_index() {
@@ -74,18 +102,16 @@ export async function init() {
     console.log('loading package', p_id, '...')
     const icons = (await (await fetch('https://materialdesignicons.com/api/package/' + p_id)).json()).icons
     console.log('loading icon data retrieval...')
-    icons.forEach(async icon => {
-        icons_data_promise[icon.id] = launch_icon_retrieval(icon, icons.length)
-        icons_data[icon.id] = await icons_data_promise[icon.id]
-    })
-    await Promise.all(Object.values(icons_data))
+    count = icons.length
+    icons.forEach(async icon => ret_icon(icon))
+    await Promise.all(Object.values(icons_data_promise))
     console.log('launching index generation...')
     await generate_index()
     console.log(' - init done !')
 }
 
 export function search(text) {
-    if (text.length < 3) return null
+    if (text.length < 3 || (i / count) < 1) return null
 
     const search_words = text.split(' ').filter(e => e)
     const indexed_words = Object.keys(icon_index)
