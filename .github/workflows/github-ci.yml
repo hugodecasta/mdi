@@ -27,8 +27,6 @@ jobs:
         run: echo ${{ env.VERSION_ID }}
       - name: Install dependencies
         run: npm ci
-      - name: Test project
-        run: npm test
       - name: Build front
         run: cd front && npm ci && npm run build && cd ..
       - name: Prepare artefact
