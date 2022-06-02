@@ -32,12 +32,19 @@
             />
         </template>
     </div>
+    <div
+        class='footer'
+        v-html="footer"
+    />
 </template>
 
 <script setup>
 import { onMounted, ref, getCurrentInstance, reactive, computed, watch } from 'vue'
 import api from './plugins/api'
 import Icon from './components/icon.vue'
+
+const year = (new Date()).getFullYear()
+const footer = '<u>mdi.hugocastaneda.fr</u> © 2022' + (year != '2022' ? ' - ' + year : '') + ' Hugo castaneda - inspired by materialdesignicons.com'
 
 const search_text = ref('')
 
@@ -96,5 +103,14 @@ body {
         --mdc-text-button-label-text-color,
         var(--mdc-theme-primary, #6200ee)
     ) !important;
+}
+.footer {
+    position: fixed;
+    z-index: -1;
+    bottom: 10px;
+    opacity: 0.2;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
 }
 </style>

@@ -113,7 +113,7 @@ export async function init() {
 export function search(text) {
     if (text.length < 3 || (i / count) < 1) return null
 
-    const search_words = text.split(' ').filter(e => e)
+    const search_words = text.replace(/-|\./g, ' ').split(' ').filter(e => e)
     const indexed_words = Object.keys(icon_index)
 
     function retrieve_word_icon_ids(word) {
