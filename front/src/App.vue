@@ -83,11 +83,11 @@ async function load_random() {
 let to = null
 watch(search_text, () => {
     clearTimeout(to)
+    if (search_text.value == '') return load_random()
     if (!is_searching.value || needs_more.value) {
         data_text.value = 'need a little more and we\'re good'
         return
     }
-    if (!is_searching.value) return load_random()
     to = setTimeout(() => search(search_text.value), 300)
 })
 
