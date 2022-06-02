@@ -18,7 +18,7 @@ export default async function () {
         res.json(icons_engine.random())
     })
 
-    api_router.get('/search', json_parser, (req, res) => {
+    api_router.post('/search', json_parser, (req, res) => {
         res.json(icons_engine.search(req.body.text))
     })
 

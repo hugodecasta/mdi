@@ -1,0 +1,19 @@
+{
+    "name": "api",
+    "apis": {
+        "api": {
+            "host": "/api",
+            "endpoints": {
+                "random": {
+                    "url": "random",
+                    "method": "get"
+                },
+                "search": {
+                    "url": "search",
+                    "method": "post",
+                    "data_needed": true
+                }
+            }
+        }
+    }
+}
