@@ -1,13 +1,21 @@
 <template>
-    <v-app>
-        <v-card class='ma-5 pa-5'>
-            <v-text-field
-                v-model="search_text"
-                search_text="search for icon"
-            ></v-text-field>
-            {{search_text}}
-        </v-card>
-        <v-card-title v-if="needs_more">To search, type more than 2 letters</v-card-title>
+    <div
+        class='pa-5 mt-10'
+        style='max-width:800px;margin:auto'
+    >
+        <h1>Material Design Icons</h1>
+        <v-text-field
+            :outlined="true"
+            v-model="search_text"
+            label="search for icon"
+        ></v-text-field>
+        {{search_text}}
+        <v-switch
+            color="primary"
+            v-model="copy_with_mdi"
+            label='copy width "mdi" prefix'
+        ></v-switch>
+        <v-card-title>{{data_text}}</v-card-title>
         <v-progress-circular
             v-if="searching"
             indeterminate
@@ -15,9 +23,10 @@
         <icon
             v-for="icon in icons_to_disp"
             :key="icon.id"
+            :copy_with_mdi="copy_with_mdi"
             :icon="icon"
         />
-    </v-app>
+    </div>
 </template>
 
 <script setup>
@@ -26,6 +35,8 @@ import api from './plugins/api'
 import icon from './components/icon.vue'
 
 const search_text = ref('')
+
+const copy_with_mdi = ref(false)
 
 const icons_to_disp = reactive([])
 
@@ -50,6 +61,10 @@ async function search() {
 let to = null
 watch(search_text, () => {
     clearTimeout(to)
+    if (!is_searching.value || needs_more.value) {
+        data_text.value = 'need a little more and we\'re good'
+        return
+    }
     to = setTimeout(search, 300)
 })
 

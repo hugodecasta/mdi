@@ -88,14 +88,30 @@ export function search(text) {
     if (text.length < 3) return null
 
     const search_words = text.split(' ').filter(e => e)
-    const words_ret = Object.keys(icon_index)
-        .filter(word => search_words.filter(search_word => word.includes(search_word)).length > 0)
+    const indexed_words = Object.keys(icon_index)
 
-    const all_icon_ids = words_ret.map(word => icon_index[word])
+    function retrieve_word_icon_ids(word) {
+        const is_include = !word.includes('!')
+        word = word.replace('!', '')
+        const words_ret = indexed_words.filter(index_word => index_word.includes(word))
+        const all_icon_ids = words_ret.map(word => icon_index[word])
+        const icon_ids = all_icon_ids.flat()
+        return { is_include, bag: icon_ids.filter((e, i, s) => s.indexOf(e) == i) }
+    }
 
-    const icons_ids = all_icon_ids.flat().filter((e, i, s) => s.indexOf(e) == i)
+    function intersect(bags) {
+        let final_bag = Object.keys(icons_data)
+        for (const { is_include, bag } of bags) {
+            final_bag = final_bag.filter(id => is_include ? bag.includes(id) : !bag.includes(id))
+        }
+        return final_bag
+    }
 
-    return icons_ids.map(icon_id => icons_data[icon_id])
+    const bags = search_words.map(retrieve_word_icon_ids)
+
+    const final_icon_ids = intersect(bags)
+
+    return final_icon_ids.map(icon_id => icons_data[icon_id])
 
 }
 
