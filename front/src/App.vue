@@ -1,31 +1,36 @@
 <template>
     <div
-        class='pa-5 mt-10'
-        style='max-width:800px;margin:auto'
+        class='pa-10 mt-10'
+        style='max-width:1000px;margin-left:auto;margin-right:auto'
     >
-        <h1>Material Design Icons</h1>
-        <v-text-field
-            :outlined="true"
-            v-model="search_text"
-            label="search for icon"
-        ></v-text-field>
-        {{search_text}}
-        <v-switch
-            color="primary"
-            v-model="copy_with_mdi"
-            label='copy width "mdi" prefix'
-        ></v-switch>
-        <v-card-title>{{data_text}}</v-card-title>
-        <v-progress-circular
+        <h1 style="display:inline-block;width:100%;text-align:center">Material Design Icons</h1>
+        <div>
+            <ui-textfield
+                class='mb-10'
+                outlined
+                v-model="search_text"
+                label='search for icon (use "!" to exclude words)'
+                style="width:calc(100%)"
+            ></ui-textfield>
+        </div>
+        <ui-drawer-title
+            v-if="data_text"
+            class='mb-5'
+        >{{data_text}}</ui-drawer-title>
+        <ui-spinner
+            class='mx-auto'
             v-if="searching"
-            indeterminate
-        ></v-progress-circular>
-        <icon
-            v-for="icon in icons_to_disp"
-            :key="icon.id"
-            :copy_with_mdi="copy_with_mdi"
-            :icon="icon"
-        />
+            active
+            style="margin-left:calc(50% - 25px);margin-top:100px;"
+        ></ui-spinner>
+        <template v-else>
+            <icon
+                v-for="icon in icons_to_disp"
+                :key="icon.id"
+                :copy_with_mdi="copy_with_mdi"
+                :icon="icon"
+            />
+        </template>
     </div>
 </template>
 
@@ -45,18 +50,25 @@ const needs_more = computed(() => is_searching.value && search_text.value.length
 
 const searching = ref(false)
 
-function set_icons(icons) {
+function set_icons(icons, text = '') {
     icons_to_disp.splice(0, 100000)
     icons_to_disp.push(...icons)
+    data_text.value = text
 }
 
-async function search() {
+async function search(q_txt) {
+    console.log(q_txt)
     searching.value = true
-    const found = await api.api.search({ text: search_text.value })
-    console.log(found)
+    data_text.value = 'searching...'
+    const found = await api.api.search({ text: q_txt })
     searching.value = false
-    set_icons(found)
+    let text = '"' + q_txt + '"'
+    if (!found.length) text = 'No results for: ' + text
+    else text = 'Results for: ' + text
+    set_icons(found, text)
 }
+
+const data_text = ref('')
 
 let to = null
 watch(search_text, () => {
@@ -65,12 +77,25 @@ watch(search_text, () => {
         data_text.value = 'need a little more and we\'re good'
         return
     }
-    to = setTimeout(search, 300)
+    to = setTimeout(() => search(search_text.value), 300)
 })
 
 onMounted(async () => {
-    set_icons(await api.api.random())
+    set_icons(await api.api.random(), 'Some random icons for you !')
 
 })
 
 </script>
+
+
+<style>
+body {
+    color: #333 !important;
+}
+.mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
+    color: var(
+        --mdc-text-button-label-text-color,
+        var(--mdc-theme-primary, #6200ee)
+    ) !important;
+}
+</style>

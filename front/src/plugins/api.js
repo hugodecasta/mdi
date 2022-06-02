@@ -1,5 +1,3 @@
-import Vue from 'vue'
-
 // ----------------------------------------------------- MAIN API CLASS
 
 class APIS {

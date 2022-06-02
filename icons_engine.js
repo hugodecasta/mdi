@@ -123,8 +123,13 @@ export function random() {
         if (picked_ids.includes(picked_id)) return pick_random_icon_id()
         return picked_id
     }
-    const nb = 20
+    const nb = 48
     Array(nb).fill(0).forEach(() => picked_ids.push(pick_random_icon_id()))
     const all_icons = picked_ids.map(icon_id => icons_data[icon_id])
     return all_icons
+}
+
+export function clicked_on(icon_id) {
+    icons_data[icon_id].clicked = (icons_data[icon_id].clicked ?? 0) + 1
+    fs.writeFileSync(per_icon_dir + '/' + icon_id + '.json', JSON.stringify(icons_data[icon_id]))
 }

@@ -2,34 +2,87 @@
     <div
         :class='["little_icon",is_google ? "":"orange"]'
         @click="open_icon()"
+        :data-tooltip-id="icon.id"
     >
-        <svg>
+        <svg
+            width="24px"
+            height="24px"
+        >
             <path :d="icon.data" />
         </svg>
+
+        <ui-tooltip :id="icon.id">
+            {{icon.name}}
+        </ui-tooltip>
     </div>
+
+    <ui-dialog
+        v-model="open"
+        :closable="true"
+        maskClosable
+    >
+        <ui-dialog-title>
+            {{icon.name}}
+            <ui-drawer-subtitle
+                style='padding-left:24px;display:inline-block'
+                v-if="appelations"
+            >{{appelations}}
+            </ui-drawer-subtitle>
+        </ui-dialog-title>
+
+        <ui-dialog-content>
+            <svg
+                class='demo_svg'
+                style="width:80px;height:80px;margin:25px;"
+                viewBox="0 0 24 24"
+            >
+                <path :d="icon.data" />
+            </svg>
+            <br />
+            by {{icon.user.name}}
+            <a
+                :href="'https://twitter.com/'+icon.user.twitter"
+                target="_blank"
+                v-if="icon.user.twitter"
+            >@{{icon.user.twitter}}</a>
+
+        </ui-dialog-content>
+    </ui-dialog>
+
 </template>
 
 <script setup>
 import { onMounted, ref, getCurrentInstance, reactive, defineProps, computed } from 'vue'
+import { useToast } from 'balm-ui'
+
+const $toast = useToast()
+
+const open = ref(false)
+
+const appelations = computed(() => {
+    return [...props.icon.aliases, ...props.icon.tags.map(t => t.name)].filter(e => e).join(' , ')
+})
 
 const props = defineProps({
     icon: Object,
     copy_with_mdi: Boolean,
 })
 
+const sizes = [50, 35, 24]
+
 const is_google = computed(() => props.icon.user.name == 'Google')
 
 function open_icon() {
     const name_to_copy = (props.copy_with_mdi ? 'mdi-' : '') + props.icon.name
     navigator.clipboard.writeText(name_to_copy)
+    $toast('icon copied !')
+    open.value = true
 }
 
 </script>
 
 <style scoped>
 svg {
-    width: 24px;
-    height: 24px;
     overflow: hidden;
 }
 .icon {
@@ -38,6 +91,7 @@ svg {
     border: 1px solid #e5e5e5;
     border-radius: 2px;
     display: inline-block;
+    border-radius: 1000px;
     width: 70px;
     height: 70px;
     padding: 10px;
@@ -77,7 +131,7 @@ svg path {
 }
 
 .little_icon.orange {
-    border-color: rgba(255, 87, 34, 0.5);
+    border-color: #ff572280;
     border-radius: 2px;
 }
 </style>
