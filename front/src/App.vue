@@ -76,6 +76,10 @@ async function search(q_txt) {
 
 const data_text = ref('')
 
+async function load_random() {
+    set_icons(await api.api.random(), 'Some random icons for you !')
+}
+
 let to = null
 watch(search_text, () => {
     clearTimeout(to)
@@ -83,11 +87,12 @@ watch(search_text, () => {
         data_text.value = 'need a little more and we\'re good'
         return
     }
+    if (!is_searching.value) return load_random()
     to = setTimeout(() => search(search_text.value), 300)
 })
 
-onMounted(async () => {
-    set_icons(await api.api.random(), 'Some random icons for you !')
+onMounted(() => {
+    load_random()
 
 })
 
